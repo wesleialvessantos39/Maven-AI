@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+node_modules/
+**/node_modules/
+client/dist/
+**/dist/
+**/coverage/
+data/*.json
+data/backups/
+workspace/*
+!workspace/exemplo-react-vite/
+**/.vercel/

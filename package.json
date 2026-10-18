@@ -1,0 +1,5 @@
+{
+ "name":"minha-ia-studio-pro","version":"1.0.0","private":true,"type":"module","workspaces":["client","server"],
+ "scripts":{"dev":"concurrently -k -n API,WEB -c cyan,magenta \"npm run dev -w server\" \"npm run dev -w client\"","build":"npm run build -w client","start":"npm run start -w server","test":"npm run test -w server","check":"npm test && npm run build"},
+ "devDependencies":{"concurrently":"8.2.2"},"engines":{"node":">=22.12.0"}
+}

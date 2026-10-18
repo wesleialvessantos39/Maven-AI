@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { prepareChatRequest, resolveProfile, modelForProfile } from './profiles.mjs';
+import { prepareChatRequest, resolveProfile, modelForProfile, fitChatRequest } from './profiles.mjs';
 
 test('perfil econômico padrão usa modelo leve e descarrega da memória', () => {
   const p = resolveProfile();
@@ -30,4 +30,16 @@ test('perfil equilibrado mantém modelo maior com limites controlados', () => {
   const result = prepareChatRequest({ profile: 'equilibrado', messages: [{role:'user',content:'teste'}], attachments: [], env: {} });
   assert.equal(result.request.model, 'qwen2.5-coder:3b');
   assert.equal(result.request.options.num_ctx, 3072);
+});
+
+test('contexto extenso é reduzido preservando regras e a última pergunta',()=>{
+  const prepared=prepareChatRequest({profile:'economico',messages:[{role:'user',content:'Investigue a falha sem remover funções existentes'}],attachments:[{path:'App.jsx',content:'referencia '.repeat(2000)}]});
+  prepared.request.messages.splice(1,0,{role:'system',content:'documentacao '.repeat(2000)});
+  const result=fitChatRequest(prepared.request,prepared.profile);
+  assert.equal(result.limited,true);assert.deepEqual(result.request.messages[0],prepared.request.messages[0]);
+  assert.deepEqual(result.request.messages.at(-1),prepared.request.messages.at(-1));assert.ok(result.chars<5000);
+});
+test('perfil avançado oferece contexto maior mantendo modelo local configurável',()=>{
+  const profile=resolveProfile('avancado');assert.ok(profile.num_ctx>resolveProfile('equilibrado').num_ctx);
+  assert.equal(modelForProfile(profile,{OLLAMA_MODEL_ADVANCED:'meu-modelo:7b'}),'meu-modelo:7b');
 });

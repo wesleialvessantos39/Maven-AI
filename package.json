@@ -1,5 +1,39 @@
 {
- "name":"minha-ia-studio-pro","version":"1.0.0","private":true,"type":"module","workspaces":["client","server"],
- "scripts":{"dev":"concurrently -k -n API,WEB -c cyan,magenta \"npm run dev -w server\" \"npm run dev -w client\"","build":"npm run build -w client","start":"npm run start -w server","test":"npm run test -w server","check":"npm test && npm run build"},
- "devDependencies":{"concurrently":"8.2.2"},"engines":{"node":">=22.12.0"}
+  "name": "maven-ai-studio",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n API,WEB -c cyan,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build:tools && npm run build -w client",
+    "start": "node scripts/start.mjs",
+    "test": "npm run test -w server && node --test tests/api.test.mjs tests/mcp.test.mjs",
+    "check": "npm test && npm run build",
+    "doctor": "node scripts/doctor.mjs",
+    "test:browser": "node tests/browser.mjs",
+    "build:tools": "node scripts/build-tools.mjs",
+    "context7": "node scripts/context7-cli.mjs",
+    "mcp": "node scripts/mcp-server.mjs",
+    "context7:official": "node scripts/upstream-context7.mjs cli",
+    "context7:mcp": "node scripts/upstream-context7.mjs mcp",
+    "package": "node scripts/package-release.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "8.2.2",
+    "esbuild": "0.28.2",
+    "playwright": "1.64.1"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "dependencies": {
+    "@upstash/context7-mcp": "4.4.2",
+    "@upstash/context7-sdk": "0.5.1",
+    "@upstash/context7-tools-ai-sdk": "1.0.3",
+    "ctx7": "0.8.0"
+  }
 }

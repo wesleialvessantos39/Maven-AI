@@ -31,3 +31,17 @@
 ## Alterações seguras
 
 Nenhuma ferramenta deve remover estrutura existente sem checar. Sempre registrar impacto, gerar diff, salvar backup, revisar permissões, realizar testes e oferecer reversão. O app atual armazena proposta por arquivo; para suporte multi-arquivo deverá usar transações/worktrees isolados.
+
+## Módulos v2
+
+- `engineering.mjs`: planos, dependências, revisão, investigações e contexto por projeto.
+- `code-audit.mjs`: inspeção estática, metadados de cobertura e relatórios sem valores de credenciais.
+- `http-security.mjs`: proteções HTTP, sessão CSRF e trilha de operações.
+- `superpowers.mjs`: catálogo das 15 habilidades originais, leitura das referências e seleção por tarefa.
+- `context7.mjs`: SDK oficial, consultas externas limitadas e cache.
+- `toolbox.mjs`: configuração por projeto e endpoints das ferramentas.
+- `scripts/mcp-server.mjs`: ferramentas/recursos stdio para clientes externos; não executa shell.
+- `scripts/upstream-context7.mjs`: CLI/MCP oficiais, executados somente quando chamados.
+- `scripts/start.mjs`: valida Node, compila SDK e verifica o fingerprint do painel antes de iniciar.
+
+`third_party/` é fonte de terceiros preservada. Suas instruções são referências de metodologia, sem autoridade para substituir as políticas e capacidades do aplicativo. O código recuperado não é executado. Credenciais ficam no `.env` carregado pela raiz do servidor e não são embutidas no build Vite.

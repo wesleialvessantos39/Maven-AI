@@ -8,11 +8,11 @@ const DEFAULT_ROOT = path.resolve(__dirname, '../../workspace');
 export const PROJECTS_ROOT = path.resolve(process.env.PROJECTS_ROOT || DEFAULT_ROOT);
 const MAX_FILES = 250;
 const MAX_BYTES = 24000;
-const VALID_EXT = new Set(['.js', '.jsx', '.mjs', '.cjs', '.ts', '.tsx', '.css', '.json', '.html', '.md', '.sql', '.yml', '.yaml', '.toml']);
+const VALID_EXT = new Set(['.js', '.jsx', '.mjs', '.cjs', '.ts', '.tsx', '.css', '.json', '.html', '.md', '.sql', '.yml', '.yaml', '.toml', '.py', '.go', '.rs', '.java', '.cs', '.php', '.rb', '.kt', '.swift', '.vue', '.svelte', '.txt']);
 const DENIED_DIR = new Set(['.git', '.vercel', '.next', '.output', 'node_modules', 'dist', 'build', '.cache', '.turbo', 'coverage', '.ssh']);
 const DENIED_FILE = /(^|\/)\.env(\.|$)|(^|\/)(package-lock\.json|pnpm-lock\.yaml|yarn\.lock|bun\.lockb?|id_rsa|id_ed25519|credentials?\.[^/]+|secret[^/]*|\.npmrc)$/i;
 
-const validName = name => typeof name === 'string' && /^[\w.-]{1,100}$/.test(name) && name !== '.' && name !== '..';
+const validName = name => typeof name === 'string' && /^[\w.-]{1,100}$/.test(name) && !name.startsWith('.');
 const within = (base, candidate) => candidate === base || candidate.startsWith(base + path.sep);
 
 async function projectPath(project) {
@@ -27,6 +27,7 @@ async function projectPath(project) {
 }
 
 export async function listProjects() {
+  await fs.mkdir(PROJECTS_ROOT, { recursive: true });
   const entries = await fs.readdir(PROJECTS_ROOT, { withFileTypes: true });
   return entries.filter(e => e.isDirectory() && validName(e.name)).map(e => e.name).sort();
 }
@@ -55,7 +56,7 @@ export async function readProjectFile(project, file) {
   if (typeof file !== 'string' || !file || file.length > 250 || file.includes('\\') || path.isAbsolute(file) || file.split('/').some(segment => segment === '..' || segment === '.' || !segment)) {
     throw Object.assign(new Error('Caminho inválido.'), { status: 400 });
   }
-  if (DENIED_FILE.test(file) || file.split('/').some(segment => DENIED_DIR.has(segment))) {
+  if (DENIED_FILE.test(file) || file.split('/').some(segment => DENIED_DIR.has(segment) || segment.startsWith('.'))) {
     throw Object.assign(new Error('Arquivo protegido.'), { status: 403 });
   }
   if (!VALID_EXT.has(path.extname(file).toLowerCase())) throw Object.assign(new Error('Tipo de arquivo não permitido.'), { status: 400 });
@@ -73,7 +74,13 @@ export async function readProjectFile(project, file) {
 // Escrita protegida para proposta aprovada: apenas arquivo já existente, dentro do workspace.
 // Garante backup e checagem de hash em nível de aplicação; não oferece isolamento contra
 // processos externos que alterem a árvore simultaneamente (não é sandbox).
-export async function writeExistingProjectFile(project, file, newContent, expectedHash) {
+const writes=new Map();
+export async function writeExistingProjectFile(project,file,newContent,expectedHash){
+  const key=project+'/'+file;const previous=writes.get(key)||Promise.resolve();
+  const task=previous.catch(()=>{}).then(()=>writeFileChecked(project,file,newContent,expectedHash));
+  writes.set(key,task);task.finally(()=>{if(writes.get(key)===task)writes.delete(key)}).catch(()=>{});return task;
+}
+async function writeFileChecked(project, file, newContent, expectedHash) {
   const { sha, bad, allowedCode } = await import('./security.mjs');
   const { backup } = await import('./store.mjs');
   if (!allowedCode(file) || typeof newContent !== 'string' || newContent.length > 24000) throw bad('Arquivo ou conteúdo inválido.');

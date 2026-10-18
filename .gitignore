@@ -11,3 +11,10 @@ data/backups/
 workspace/*
 !workspace/exemplo-react-vite/
 **/.vercel/
+
+# Registros privados e artefatos locais
+data/*.jsonl*
+data/*.tmp
+artifacts/
+playwright-report/
+test-results/

@@ -24,5 +24,6 @@ export async function summarizeProject(project) {
   if (files.some(p => p.startsWith('supabase/') || p.endsWith('.sql'))) stack.add('Arquivos SQL / Supabase');
   if (files.includes('vercel.json')) stack.add('Configuração Vercel');
   if (files.some(p => p.endsWith('.jsx') || p.endsWith('.tsx'))) stack.add('Componentes React');
+  for (const [extension, label] of [['.py','Python'],['.go','Go'],['.rs','Rust'],['.java','Java'],['.cs','C#'],['.php','PHP'],['.vue','Vue'],['.svelte','Svelte']]) if (files.some(p => p.endsWith(extension))) stack.add(label);
   return { project, stack: [...stack], packageCount, filesFound: files.length, filesSample: files.slice(0, 8) };
 }

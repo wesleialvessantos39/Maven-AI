@@ -3,6 +3,18 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bad } from './security.mjs';
 export const DATA_DIR = path.resolve(process.env.MY_IA_DATA_DIR || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../data'));
+const queues = new Map();
+export function update(name, mutate, fallback = []) {
+  const previous = queues.get(name) || Promise.resolve();
+  const task = previous.catch(() => {}).then(async () => {
+    const next = await mutate(await load(name, fallback));
+    await save(name, next);
+    return next;
+  });
+  queues.set(name, task);
+  task.finally(() => { if (queues.get(name) === task) queues.delete(name); }).catch(() => {});
+  return task;
+}
 export async function load(name, fallback=[]) {
   try { return JSON.parse(await fs.readFile(path.join(DATA_DIR,name+'.json'),'utf8')); }
   catch(e) { if(e.code==='ENOENT') return fallback; throw e; }

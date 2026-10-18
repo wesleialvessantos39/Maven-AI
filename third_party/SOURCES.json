@@ -1,0 +1,18 @@
+[
+  {
+    "name": "superpowers",
+    "uploadedArchive": "superpowers-main.zip",
+    "archiveSHA256": "02dbd1df4d736aa8f6016c5e163ad613a1ffeea0d58def158e12aacd4a6a41d8",
+    "files": 238,
+    "allFilesMatchUploadedArchive": true,
+    "license": "MIT"
+  },
+  {
+    "name": "context7",
+    "uploadedArchive": "context7-master.zip",
+    "archiveSHA256": "f5bb79a6d9206c095c76195c2a47a56b092f62d63063d9608f4ceeee3f70826f",
+    "files": 530,
+    "allFilesMatchUploadedArchive": true,
+    "license": "MIT"
+  }
+]
